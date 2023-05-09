@@ -1,0 +1,119 @@
+# To Copy/paste into Linux terminal, ctrl+C here and shift+ctrl+V in terminal (Webshell)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# WARPX WORKFLOW
+
+# After run_warpx.sh completes, copy the diags directory to CENTER so VisIt can see it
+# Navigate to dir with a diags folder in it and copy/paste
+nohup cp -r diags /p/cwfs/crstoner/diagdirs/diags_$(date +%d%b%H%M%Z) &
+
+#Usually this is automated, but it can be useful for, say, timeouts
+ls -1 diag1*/Header | tee movie.visit 			#Create movie.visit
+
+# Check on copy status
+bg
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ANACONDA/PYTHON WORKFLOW (with HPC systems)
+module avail # check list of available modules, look for Anaconda or python3.
+python -c 'import yt' # Check to see if yt is properly installed:
+
+# Anaconda is missing on Narwhal, use pip instead.
+pip list # check loaded modules - check to see matplotlib version, if version < 3.4.0, good
+python -m pip install --upgrade yt # Check for previous installation first 
+python -m pip install --user yt
+python -m pip install --user ffmpeg
+
+# TO MAKE DATA INTO MOVIE:
+cd [work dir]/warpxruns/fusion2D/[wpxrun directory]/diags/	
+mkdir Figures											    #Make Figures dir for py script
+cd [work dir]/analysisWarpX/
+module load python/3
+python -c "import yt"										#This takes a long time
+python -c "import ffmpeg"									#This does not take long
+nano ParticlePlotImagesMod.py								#Edit file path, steps to plot
+python ParticlePlotImagesMod.py								#Run py script
+cd ../warpxruns/fusion2D/[wpxrun directory]/diags/Figures
+nohup convert -delay 5 -loop 0 diag1*.png data_video.gif &	#Use ImageMagick to make .gif
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# QUEUE RELATED STUFF
+
+# Check status of qsubbed job
+qstat -u crstoner
+# Check status of debug queue
+qstat -q debug
+# Stop a job running in queue
+qdel [job #]
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# NAVIGATION
+
+# Navigate to work dir
+cd /p/work1/crstoner/warpxruns/
+# To CENTER
+cd /p/cwfs/crstoner
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MISCELLANEOUS
+
+# To remove Windows return lines [necessary when ^M error appears on *.o* file]
+sed -i -e 's/\r$//' [file.sh]
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# NOTES/JAIL
+
+~/.local/lib/python3.8/site-packages/
+
+
+better protons if focus slightly off surface of target
+
+Run with just laser and see what total energy is
+
+E0 = 2.7e3 * sqrt (Intensity W/cm^2)
+
+
+How much neut gen expect in target?
+Is fusion model WarpX used bad at low temps?
+
+
+Take deuteron spec and use to estimate from catcher
+
+particle weight bigger bc repping 1m thick (?)
+
+Is fusion model good? 2D? 3D?
+
+deuteron temperatures/spectrum (?)
+
+run on many many nodes for 3D
+
+Davis paper for expected neut output
+
+One sim with/out fusion - what perc of energy is converted to neuts? What perc of deuts are converted to neuts?
+
+compare deuts for with/without fusion 
+
+Need a question to answer:
+-what's going on in the exp? 
+-Is what WarpX is doing reasonable - test physics
+-Number neuts vs time
+-neuts vs time with no laser just block of ~eV 
+
+
+good data - data that lets write thesis/paper
+
+incremental is okay as long as it's new or publishable
+
+run 2d sim with lab - back up and say is that reasonable? What happens if we do ___?
+
+How does the number of neutrons evolve with time?
+Where do neutrons generate?
+Where do neutrons propagate? (Isotropy study/angular dependence of neutron generation)
+
+Check plasma freq & debye length
+
+make sure not saturating 
+
+Feel confidence -> paper
+prgram outcome paper
+
+make sure non-fusion works - make sure resolve space by reduce cell size by 2
+
+~ 2 MeV deuts from 10^19 W/cm^2 laser 
+
+Joe says make sim good then make fusion good
